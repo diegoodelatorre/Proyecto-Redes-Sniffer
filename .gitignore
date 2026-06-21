@@ -1,0 +1,13 @@
+# Ejecutables
+sniffer_ubuntu
+sniffer
+*.exe
+
+# Archivos de datos generados
+*.csv
+
+# Archivos temporales o de configuración del sistema/IDE
+.DS_Store
+.vscode/
+*.o
+*.out
