@@ -509,10 +509,12 @@ int main() {
             // fondo de los bloques de esas metricas
             struct nk_color card_bg = isDarkMode ? nk_rgb(35, 35, 35) : nk_rgb(220, 220, 215);
             nk_style_push_style_item(ctx, &ctx->style.window.fixed_background, nk_style_item_color(card_bg));
+            // Color del texto de las metricas
+            struct nk_color cardTitleColor = isDarkMode ? nk_rgb(180, 180, 180) : nk_rgb(0, 0, 0);
 
             if (nk_group_begin(ctx, "card_packets", NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR)) {
                 nk_layout_row_dynamic(ctx, 16, 1);
-                nk_label_colored(ctx, "Paquetes", NK_TEXT_LEFT, textHintColor);
+                nk_label_colored(ctx, "Paquetes", NK_TEXT_LEFT, cardTitleColor);
                 char buf[32];
                 snprintf(buf, sizeof(buf), "%d", (int)packetHistory.size());
                 nk_layout_row_dynamic(ctx, 24, 1);
@@ -521,7 +523,7 @@ int main() {
             }
             if (nk_group_begin(ctx, "card_alerts", NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR)) {
                 nk_layout_row_dynamic(ctx, 16, 1);
-                nk_label_colored(ctx, "Alertas", NK_TEXT_LEFT, textHintColor);
+                nk_label_colored(ctx, "Alertas", NK_TEXT_LEFT, cardTitleColor);
                 char buf[32];
                 snprintf(buf, sizeof(buf), "%d", (int)alertLog.size());
                 nk_layout_row_dynamic(ctx, 24, 1);
@@ -531,7 +533,7 @@ int main() {
             }
             if (nk_group_begin(ctx, "card_status", NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR)) {
                 nk_layout_row_dynamic(ctx, 16, 1);
-                nk_label_colored(ctx, "Estado", NK_TEXT_LEFT, textHintColor);
+                nk_label_colored(ctx, "Estado", NK_TEXT_LEFT, cardTitleColor);
                 nk_layout_row_dynamic(ctx, 24, 1);
                 struct nk_color stColor = isPaused ? textMuteColor : nk_rgb(40, 160, 85);
                 nk_label_colored(ctx, isPaused ? "Pausado" : "Capturando", NK_TEXT_LEFT, stColor);
@@ -539,14 +541,48 @@ int main() {
             }
             if (nk_group_begin(ctx, "card_iface", NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR)) {
                 nk_layout_row_dynamic(ctx, 16, 1);
-                nk_label_colored(ctx, "Interfaz", NK_TEXT_LEFT, textHintColor);
+                nk_label_colored(ctx, "Interfaz", NK_TEXT_LEFT, cardTitleColor);
                 nk_layout_row_dynamic(ctx, 24, 1);
                 nk_label(ctx, iface.c_str(), NK_TEXT_LEFT);
                 nk_group_end(ctx);
             }
 
-            // Las ventas de su color normal
+            // Restaurar las ventanas de su color normal
             nk_style_pop_style_item(ctx);
+
+            // Estadisticas de los protocolos en los que se detectan los paquetes
+            int cTCP = 0, cUDP = 0, cICMP = 0, cARP = 0, cOther = 0;
+            int totalPkts = packetHistory.size();
+            if (totalPkts > 0) {
+                for (const auto &p : packetHistory) {
+                    if (p.protocol == "TCP") cTCP++;
+                    else if (p.protocol == "UDP") cUDP++;
+                    else if (p.protocol == "ICMP") cICMP++;
+                    else if (p.protocol == "ARP") cARP++;
+                    else cOther++;
+                }
+
+                nk_layout_row_dynamic(ctx, 15, 1);
+                nk_label_colored(ctx, "Estadisticas de los protocolos de los paquetes:", NK_TEXT_LEFT, textHintColor);
+                
+                nk_layout_row_dynamic(ctx, 22, 5);
+                char bufStat[64];
+                
+                snprintf(bufStat, sizeof(bufStat), "TCP: %d%%", (cTCP * 100) / totalPkts);
+                nk_label_colored(ctx, bufStat, NK_TEXT_CENTERED, protocolColor("TCP"));
+                
+                snprintf(bufStat, sizeof(bufStat), "UDP: %d%%", (cUDP * 100) / totalPkts);
+                nk_label_colored(ctx, bufStat, NK_TEXT_CENTERED, protocolColor("UDP"));
+                
+                snprintf(bufStat, sizeof(bufStat), "ICMP: %d%%", (cICMP * 100) / totalPkts);
+                nk_label_colored(ctx, bufStat, NK_TEXT_CENTERED, protocolColor("ICMP"));
+                
+                snprintf(bufStat, sizeof(bufStat), "ARP: %d%%", (cARP * 100) / totalPkts);
+                nk_label_colored(ctx, bufStat, NK_TEXT_CENTERED, protocolColor("ARP"));
+                
+                snprintf(bufStat, sizeof(bufStat), "Otros: %d%%", (cOther * 100) / totalPkts);
+                nk_label_colored(ctx, bufStat, NK_TEXT_CENTERED, protocolColor("OTRO"));
+            }
 
             // Mostrar la alerta mas reciente si es que la hay
             if (!alertLog.empty()) {
