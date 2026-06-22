@@ -11,3 +11,8 @@ sniffer
 .vscode/
 *.o
 *.out
+
+# Empaquetado e Instaladores (¡NUEVO!)
+*.deb
+*.zip
+sniffer-paquete_*/

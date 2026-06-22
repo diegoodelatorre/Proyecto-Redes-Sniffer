@@ -502,7 +502,7 @@ int main() {
             }
 
             struct nk_color textHintColor = isDarkMode ? nk_rgb(180, 180, 180) : textHintColor;
-            struct nk_color textMuteColor = isDarkMode ? nk_rgb(140, 140, 140) : textMuteColor;
+            struct nk_color textMuteColor = isDarkMode ? nk_rgb(140, 140, 140) : nk_rgb(0, 0, 0);
             // Metricas (paquetes, alertas, estado e interfaz)
             nk_layout_row_dynamic(ctx, 56, 4);
 
